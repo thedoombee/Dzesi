@@ -1,5 +1,20 @@
 <?php
 session_start();
+require_once './includes/breadcrumb.php';
+include 'db.php';
+
+// Récupération des catégories pour le menu
+$categories = $pdo->query("SELECT * FROM categories_d")->fetchAll();
+
+// Récupération des produits selon la catégorie sélectionnée
+$cat_id = $_GET['cat'] ?? null;
+if ($cat_id) {
+    $stmt = $pdo->prepare("SELECT * FROM produits_d WHERE id_cat = ?");
+    $stmt->execute([$cat_id]);
+    $produits = $stmt->fetchAll();
+} else {
+    $produits = $pdo->query("SELECT * FROM produits_d")->fetchAll();
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -165,6 +180,19 @@ session_start();
     color: #343a40;
 }
 
+.img-container {
+    height: 300px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.card-img-top {
+    max-height: 100%;
+    width: auto;
+    object-fit: cover;
+}
+
 
 
 
@@ -238,15 +266,11 @@ session_start();
                 </div>
     
                 <!-- Panier et réseaux sociaux + bouton -->
-                <div class="d-flex align-items-center gap-3 navbar-actions order-lg-2 order-1" style="width:auto;">
-                    <a href="#" class="icon-link text-dark"><i class="bi bi-cart fs-5"></i></a>
-                    <a href="#" class="icon-link text-dark"><i class="bi bi-facebook fs-5"></i></a>
-                    <a href="#" class="icon-link text-dark"><i class="bi bi-twitter fs-5"></i></a>
-                    <?php if (isset($_SESSION['user'])): ?>
-                        <a href="compte.php" class="btn btn-outline-dark ms-2">Mon compte</a>
-                    <?php else: ?>
-                        <a href="inscription.php" class="btn btn-outline-dark ms-2">Inscription</a>
-                    <?php endif; ?>
+                <div class="d-flex align-items-center gap-3 navbar-actions order-lg-2 order-1">
+                    <a href="#" class="nav-link p-0" style="color: black;"><i class="bi bi-cart fs-5"></i></a>
+                    <a href="#" class="nav-link p-0" style="color: black;"><i class="bi bi-facebook fs-5"></i></a>
+                    <a href="#" class="nav-link p-0" style="color: black;"><i class="bi bi-twitter fs-5"></i></a>
+                    <?php include 'includes/bouton_compte.php'; ?>
                 </div>
             </div>
         </nav>
@@ -254,15 +278,7 @@ session_start();
     <div class="container-fluid">
         <div class="container-fluid" style="height: 10rem; align-items: center; display: flex; font-size: 2rem;">Boutique</div>
         <!-- Cette section affichera les breadcrumbs -->
-    <div class="breadcrumb-container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="produits.php">Boutique</a></li>
-                <li class="breadcrumb-item qutive" aria-current="page">Tous</li> <!-- Ce texte changera dynamiquement -->
-            </ol>
-        </nav>
-    </div>
-
+        <?php showBreadcrumb(); ?>
         <hr>
     </div>
     <div class="container-fluid">
@@ -271,21 +287,41 @@ session_start();
                 <!-- Menu vertical sur grand écran, horizontal sur mobile -->
                 <nav>
                     <ul class="list-unstyled d-flex flex-column menu-vertical">
-                        <li class="menu-item"><a href="produits.php" class="active">Tous</a></li>
-                        <li class="menu-item"><a href="/vases.php">Vases</a></li>
-                        <li class="menu-item"><a href="/pagnes.php">Pagnes</a></li>
-                        <li class="menu-item"><a href="/pots.php">Pots</a></li>
-                        <li class="menu-item"><a href="/tableaux.php">tableaux</a></li>
-                        <li class="menu-item"><a href="/sculptures.php">Sculptures</a></li>
-                    </ul>
+    <li class="menu-item"><a href="produits.php" class="active">Tous</a></li>
+    <?php foreach ($categories as $cat): ?>
+        <li class="menu-item">
+            <a href="produits.php?cat=<?= $cat['id_cat'] ?>">
+                <?= htmlspecialchars($cat['nom_cat']) ?>
+            </a>
+        </li>
+    <?php endforeach; ?>
+</ul>
                 </nav>
-                
+                     
                 
             </div>
-            
-            
+            <div class="col-md-10">
+                <div class="row">
+                    <?php if (empty($produits)): ?>
+                        <div class="col-12 text-center text-muted mt-5">Aucun produit dans cette catégorie.</div>
+                    <?php endif; ?>
+                    <?php foreach ($produits as $prod): ?>
+                        <div class="col-md-4 mb-4">
+                            <div class="card h-100 border-0">
+                                <div class="img-container">
+                                    <img src="<?= htmlspecialchars($prod['image']) ?>" class="card-img-top" alt="<?= htmlspecialchars($prod['nom_prod']) ?>" style="object-fit:cover; height:300px;">
+                                </div>
+                                <div class="card-body px-0">
+                                    <div class="fw-semibold mb-2"><?= htmlspecialchars($prod['nom_prod']) ?></div>
+                                    <div class="text-muted"><?= number_format($prod['prix'], 2, ',', ' ') ?> FCFA</div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
 
 
 
@@ -341,45 +377,8 @@ session_start();
 
 
 
+
 <script>
-    // Récupère l'URL actuelle
-    const currentPage = window.location.pathname;
-
-    // Fonction qui ajuste dynamiquement le chemin d'accès en fonction de l'URL
-    function updateBreadcrumb() {
-        let categoryName = 'Tous'; // Valeur par défaut
-
-        if (currentPage.includes('vases.html')) {
-            categoryName = 'Vases';
-        } else if (currentPage.includes('pagnes.html')) {
-            categoryName = 'Pagnes';
-        } else if (currentPage.includes('pots.html')) {
-            categoryName = 'Pots';
-        } else if (currentPage.includes('tableaux.html')) {
-            categoryName = 'Tableaux';
-        } else if (currentPage.includes('sculptures.html')) {
-            categoryName = 'Sculptures';
-        }
-
-        // Met à jour le texte du dernier élément breadcrumb
-        const breadcrumbItems = document.querySelectorAll('.breadcrumb-item');
-        breadcrumbItems[breadcrumbItems.length - 1].textContent = categoryName;
-    }
-
-    // Appel après avoir défini currentPage
-    updateBreadcrumb();
-
-    // Active le lien correspondant dans le menu de navigation
-    const links = document.querySelectorAll('.nav-link');
-    links.forEach(link => {
-        if (currentPage.includes(link.getAttribute('href').split('?')[0])) {
-            link.classList.add('active');
-        } else {
-            link.classList.remove('active');
-        }
-    });
-</script>
-    <script>
         const menuIcon = document.querySelector('.menu-icon i');
         const navbarCollapse = document.getElementById('navbarNav');
     

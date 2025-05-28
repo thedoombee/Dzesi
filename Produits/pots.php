@@ -1,3 +1,11 @@
+<?php
+session_start();
+require_once './includes/breadcrumb.php';
+include 'db.php';
+
+// Récupération des catégories
+$categories = $pdo->query("SELECT * FROM categories_d")->fetchAll();
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -18,15 +26,10 @@
         left: 50%;
         transform: translateX(-50%);
     }
-}
-
-/* Ajustez la disposition des éléments sur les petits écrans */
-@media (max-width: 991.98px) {
     .navbar-brand {
-        margin-right: auto;
-    }
-
-    .navbar-collapse {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
         flex-grow: 0;
     }
 
@@ -43,11 +46,12 @@
         margin-left: auto;
     }
     /* Ajoute un peu d'espace entre les éléments du menu */
-    .navbar-nav .nav-item {
-        margin: 0.5rem 0;
-    }
+        .navbar-nav .nav-item {
+            margin: 0.5rem 0;
+        }
+    } /* <-- This closes the @media (min-width: 992px) block */
 
-}
+
 
 @media (max-width: 767.98px) {
             .menu-vertical {
@@ -235,11 +239,11 @@
                 </div>
     
                 <!-- Panier et réseaux sociaux -->
-                <div class="d-flex align-items-center justify-content-between order-lg-2 order-1" style="width: 8rem;">
-                    <div><a href="#" class="nav-link" style="color: black ;"><i class="bi bi-cart"></i> </a></div>
-                    <div><a href="#" class="nav-link" style="color: black;"><i class="bi bi-facebook"></i></a></div>
-                    <div><a href="#" class="nav-link" style="color: black;"><i class="bi bi-twitter"></i></a></div>
-                    
+                <div class="d-flex align-items-center gap-4 order-lg-2 order-1">
+                    <a href="#" class="nav-link p-0" style="color: black;"><i class="bi bi-cart"></i></a>
+                    <a href="#" class="nav-link p-0" style="color: black;"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="nav-link p-0" style="color: black;"><i class="bi bi-twitter"></i></a>
+                    <?php include 'includes/bouton_compte.php'; ?>
                 </div>
             </div>
         </nav>
@@ -247,14 +251,7 @@
     <div class="container-fluid">
         <div class="container-fluid" style="height: 10rem; align-items: center; display: flex; font-size: 2rem;">Boutique</div>
         <!-- Cette section affichera les breadcrumbs -->
-    <div class="breadcrumb-container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="produits.html">Boutique</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Catégorie</li> <!-- Ce texte changera dynamiquement -->
-            </ol>
-        </nav>
-    </div>
+<?php showBreadcrumb(); ?>
 
         <hr>
     </div>
@@ -264,10 +261,10 @@
                 <!-- Menu vertical sur grand écran, horizontal sur mobile -->
                 <nav>
                     <ul class="list-unstyled d-flex flex-column menu-vertical">
-                        <li class="menu-item"><a href="produits.php" class="active">Tous</a></li>
+                        <li class="menu-item"><a href="produits.php" >Tous</a></li>
                         <li class="menu-item"><a href="/vases.php">Vases</a></li>
                         <li class="menu-item"><a href="/pagnes.php">Pagnes</a></li>
-                        <li class="menu-item"><a href="/pots.php">Pots</a></li>
+                        <li class="menu-item"><a href="/pots.php" class="active">Pots</a></li>
                         <li class="menu-item"><a href="/tableaux.php">tableaux</a></li>
                         <li class="menu-item"><a href="/sculptures.php">Sculptures</a></li>
                     </ul>
@@ -276,24 +273,57 @@
                 
             </div>
             
-           
+            <div class="col-md-10">
+                <div class="row">
+                    <div class="col-md-4  align-items-center">
+                    <a href="">
+                        <div class="card border-0" >
+                            <div class="mb-3 image-container">
+                                <!-- Emplacement de l'image -->
+                                <img src="./images/vase_trc1.jpeg" alt="Image 1" class="img-fluid">
+                            </div>
+                            <div class="card border-0">
+                            <p class="card-text">Lokpo_1</p>
+                            <p class="card-text">25.000,00 FCFA</p>
+                            </div>
+                        </div>
+                    </a>  
+                 </div>
+                    <div class="col-md-4  align-items-center">
+                        <a href="">
+                            <div class="card border-0" >
+                                <div class="mb-3 image-container">
+                                    <!-- Emplacement de l'image -->
+                                    <img src="./images/vase_trc3.jpeg" alt="Image 1" class="img-fluid">
+                                </div>
+                                <div class="card border-0">
+                                <p class="card-text">Lokpo</p>
+                                <p class="card-text">25.000,00 FCFA</p>
+                                </div>
+                            </div>
+                        </a>  
+                     </div>
+                 <div class="col-md-4  align-items-center">
+                    <a href="">
+                        <div class="card border-0" >
+                            <div class="mb-3 image-container">
+                                <!-- Emplacement de l'image -->
+                                <img src="./images/vase_trc.png" alt="Image 1" class="img-fluid">
+                            </div>
+                            <div class="card border-0">
+                            <p class="card-text">Lokpo</p>
+                            <p class="card-text">25.000,00 FCFA</p>
+                            </div>
+                        </div>
+                    </a>  
+                 </div>
+                </div>
+                    
+
+            </div>
         </div>
     </div>
 </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -350,89 +380,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  <script>
-
-    // Récupère l'URL actuelle
-    const currentPage = window.location.pathname;
-
-    // Fonction qui ajuste dynamiquement le chemin d'accès en fonction de l'URL
-    function updateBreadcrumb() {
-        let categoryName = 'Tous'; // Valeur par défaut
-
-        if (currentPage.includes('vases.html')) {
-            categoryName = 'Vases';
-        } else if (currentPage.includes('pagnes.html')) {
-            categoryName = 'Pagnes';
-        } else if (currentPage.includes('pots.html')) {
-            categoryName = 'Pots';
-        } else if (currentPage.includes('tableaux.html')) {
-            categoryName = 'Tableaux';
-        } else if (currentPage.includes('sculptures.html')) {
-            categoryName = 'Sculptures';
-        }
-
-        // Met à jour le texte du dernier élément breadcrumb
-        const breadcrumbItems = document.querySelectorAll('.breadcrumb-item');
-        breadcrumbItems[breadcrumbItems.length - 1].textContent = categoryName;
-    }
-
-    // Appel après avoir défini currentPage
-    updateBreadcrumb();
-
-    // Active le lien correspondant dans le menu de navigation
-    const links = document.querySelectorAll('.nav-link');
-    links.forEach(link => {
-        if (currentPage.includes(link.getAttribute('href').split('?')[0])) {
-            link.classList.add('active');
-        } else {
-            link.classList.remove('active');
-        }
-    });
-
-
-
-
-
-
-
-
-
-    
-</script>
     <script>
         const menuIcon = document.querySelector('.menu-icon i');
         const navbarCollapse = document.getElementById('navbarNav');

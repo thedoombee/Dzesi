@@ -194,17 +194,7 @@ include 'db.php';
     <div><a href="#" class="nav-link px-2" style="color: black;"><i class="bi bi-cart"></i></a></div>
     <div><a href="#" class="nav-link px-2" style="color: black;"><i class="bi bi-facebook"></i></a></div>
     <div><a href="#" class="nav-link px-2" style="color: black;"><i class="bi bi-twitter"></i></a></div>
-    <?php if (isset($_SESSION['user'])): ?>
-        <a href="compte.php" class="btn btn-outline-dark ms-2"
-           style="border:2px solid black; background:transparent; color:black; font-weight:600; border-radius:0; padding:6px 16px; transition:0.2s; white-space:nowrap; font-size:1rem; min-width:110px;">
-            Mon compte
-        </a>
-    <?php else: ?>
-        <a href="inscription.php" class="btn btn-outline-dark ms-2"
-           style="border:2px solid black; background:transparent; color:black; font-weight:600; border-radius:0; padding:6px 16px; transition:0.2s; white-space:nowrap; font-size:1rem; min-width:110px;">
-            Inscription
-        </a>
-    <?php endif; ?>
+    <?php include 'includes/bouton_compte.php'; ?>
 </div>
             </div>
         </nav>

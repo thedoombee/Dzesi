@@ -1,3 +1,20 @@
+<?php
+session_start();
+require_once './includes/breadcrumb.php';
+include 'db.php';
+
+// Récupération des catégories
+$categories = $pdo->query("SELECT * FROM categories_d")->fetchAll();
+
+$cat_id = $_GET['cat'] ?? null;
+if ($cat_id) {
+    $stmt = $pdo->prepare("SELECT * FROM produits_d WHERE id_cat = ?");
+    $stmt->execute([$cat_id]);
+    $produits = $stmt->fetchAll();
+} else {
+    $produits = $pdo->query("SELECT * FROM produits_d")->fetchAll();
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -235,11 +252,11 @@
                 </div>
     
                 <!-- Panier et réseaux sociaux -->
-                <div class="d-flex align-items-center justify-content-between order-lg-2 order-1" style="width: 8rem;">
-                    <div><a href="#" class="nav-link" style="color: black ;"><i class="bi bi-cart"></i> </a></div>
-                    <div><a href="#" class="nav-link" style="color: black;"><i class="bi bi-facebook"></i></a></div>
-                    <div><a href="#" class="nav-link" style="color: black;"><i class="bi bi-twitter"></i></a></div>
-                    
+                <div class="d-flex align-items-center gap-4 order-lg-2 order-1">
+                    <a href="#" class="nav-link p-0" style="color: black;"><i class="bi bi-cart"></i></a>
+                    <a href="#" class="nav-link p-0" style="color: black;"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="nav-link p-0" style="color: black;"><i class="bi bi-twitter"></i></a>
+                    <?php include 'includes/bouton_compte.php'; ?>
                 </div>
             </div>
         </nav>
@@ -247,14 +264,7 @@
     <div class="container-fluid">
         <div class="container-fluid" style="height: 10rem; align-items: center; display: flex; font-size: 2rem;">Boutique</div>
         <!-- Cette section affichera les breadcrumbs -->
-    <div class="breadcrumb-container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="produits.html">Boutique</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Catégorie</li> <!-- Ce texte changera dynamiquement -->
-            </ol>
-        </nav>
-    </div>
+<?php showBreadcrumb(); ?>; ?>
 
         <hr>
     </div>
@@ -264,16 +274,18 @@
                 <!-- Menu vertical sur grand écran, horizontal sur mobile -->
                 <nav>
                     <ul class="list-unstyled d-flex flex-column menu-vertical">
-                        <li class="menu-item"><a href="produits.php" class="active">Tous</a></li>
-                        <li class="menu-item"><a href="/vases.php">Vases</a></li>
-                        <li class="menu-item"><a href="/pagnes.php">Pagnes</a></li>
-                        <li class="menu-item"><a href="/pots.php">Pots</a></li>
-                        <li class="menu-item"><a href="/tableaux.php">tableaux</a></li>
-                        <li class="menu-item"><a href="/sculptures.php">Sculptures</a></li>
-                    </ul>
-                </nav>
+    <li class="menu-item"><a href="produits.php" class="active">Tous</a></li>
+    <?php foreach ($categories as $cat): ?>
+        <li class="menu-item">
+            <a href="produits.php?cat=<?= $cat['id_cat'] ?>">
+                <?= htmlspecialchars($cat['nom_cat']) ?>
+            </a>
+        </li>
+    <?php endforeach; ?>?>
+</ul>
+                </nav></nav>
                 
-                
+                    
             </div>
             
             <div class="col-md-10">
@@ -305,46 +317,32 @@
                                 </div>
                             </div>
                         </a>  
-                     </div>
+                     </div>/h5>
                  <div class="col-md-4  align-items-center">
-                    <a href="">
-                        <div class="card border-0" >
-                            <div class="mb-3 image-container">
+                    <a href="">uted">Comment soumettre une recette ?</a></li>
+                        <div class="card border-0" >ted">Comment fonctionne le blog ?</a></li>
+                            <div class="mb-3 image-container">aux ?</a></li>
                                 <!-- Emplacement de l'image -->
                                 <img src="./images/vase_trc.png" alt="Image 1" class="img-fluid">
                             </div>
                             <div class="card border-0">
-                            <p class="card-text">Lokpo</p>
-                            <p class="card-text">25.000,00 FCFA</p>
-                            </div>
-                        </div>
-                    </a>  
-                 </div>
-                </div>
+                            <p class="card-text">Lokpo</p>>
+                            <p class="card-text">25.000,00 FCFA</p>tact</h5>
+                            </div>unstyled">
+                        </div>text-muted">Email : <a href="mailto:contact@Dzesi.com" class="text-decoration-none">contact@Dzesi.com</a></li>
+                    </a>  "text-muted">Téléphone : +228 90 00 00 00</li>
+                 </div>s="text-muted">Adresse : Lomé, Togo</li>
+                </div>          </ul>
                     
 
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            </div>-- Réseaux sociaux -->
+        </div>  <div class="col-md-4 mb-4">
+    </div>          <h5 class="mb-3">Suivez-nous</h5>
+</div>          <div class="d-flex gap-3">
+            <a href="#" class="text-dark"><i class="bi bi-facebook fs-4"></i></a>
+            <a href="#" class="text-dark"><i class="bi bi-instagram fs-4"></i></a>
+            <a href="#" class="text-dark"><i class="bi bi-twitter fs-4"></i></a>
+i bi-youtube fs-4"></i></a>
 
 <footer class=" text-dark pt-5 pb-3 mt-5 border-top">
     <div class="container">
@@ -355,9 +353,9 @@
           <h5 class="mb-3">FAQ</h5>
           <ul class="list-unstyled">
             <li><a href="#" class="text-decoration-none text-muted">Comment soumettre une recette ?</a></li>
-            <li><a href="#" class="text-decoration-none text-muted">Comment fonctionne le blog ?</a></li>
+            <li><a href="#" class="text-decoration-none text-muted">Comment fonctionne le blog ?</a></li>/footer>
             <li><a href="#" class="text-decoration-none text-muted">Puis-je partager sur les réseaux ?</a></li>
-          </ul>
+          </ul>  
         </div>
   
         <!-- Contacts -->
@@ -376,124 +374,22 @@
           <div class="d-flex gap-3">
             <a href="#" class="text-dark"><i class="bi bi-facebook fs-4"></i></a>
             <a href="#" class="text-dark"><i class="bi bi-instagram fs-4"></i></a>
-            <a href="#" class="text-dark"><i class="bi bi-twitter fs-4"></i></a>
-            <a href="#" class="text-dark"><i class="bi bi-youtube fs-4"></i></a>
-          </div>
+            <a href="#" class="text-dark"><i class="bi bi-twitter fs-4"></i></a>llapse.addEventListener('shown.bs.collapse', () => {.getElementById('navbarNav');
+            <a href="#" class="text-dark"><i class="bi bi-youtube fs-4"></i></a>on.classList.remove('bi-list');
+          </div>      menuIcon.classList.add('bi-x');    navbarCollapse.addEventListener('shown.bs.collapse', () => {
         </div>
+    
+      </div>vbarCollapse.addEventListener('hidden.bs.collapse', () => {
+        menuIcon.classList.remove('bi-x');
+      <hr>st.add('bi-list');rCollapse.addEventListener('hidden.bs.collapse', () => {
   
-      </div>
-  
-      <hr>
-  
-      <!-- Copyright -->
-      <div class="text-center text-muted">
+      <!-- Copyright -->st');
+      <div class="text-center text-muted">src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script> });
         © 2025 Dzesi. Tous droits réservés.
       </div>
-    </div>
-  </footer>
- 
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  <script>
-
-    // Récupère l'URL actuelle
-    const currentPage = window.location.pathname;
-
-    // Fonction qui ajuste dynamiquement le chemin d'accès en fonction de l'URL
-    function updateBreadcrumb() {
-        let categoryName = 'Tous'; // Valeur par défaut
-
-        if (currentPage.includes('vases.html')) {
-            categoryName = 'Vases';
-        } else if (currentPage.includes('pagnes.html')) {
-            categoryName = 'Pagnes';
-        } else if (currentPage.includes('pots.html')) {
-            categoryName = 'Pots';
-        } else if (currentPage.includes('tableaux.html')) {
-            categoryName = 'Tableaux';
-        } else if (currentPage.includes('sculptures.html')) {
-            categoryName = 'Sculptures';
-        }
-
-        // Met à jour le texte du dernier élément breadcrumb
-        const breadcrumbItems = document.querySelectorAll('.breadcrumb-item');
-        breadcrumbItems[breadcrumbItems.length - 1].textContent = categoryName;
-    }
-
-    // Appel après avoir défini currentPage
-    updateBreadcrumb();
-
-    // Active le lien correspondant dans le menu de navigation
-    const links = document.querySelectorAll('.nav-link');
-    links.forEach(link => {
-        if (currentPage.includes(link.getAttribute('href').split('?')[0])) {
-            link.classList.add('active');
-        } else {
-            link.classList.remove('active');
-        }
-    });
-
-
-
-
-
-
-
-
-
-    
-</script>
-    <script>
-        const menuIcon = document.querySelector('.menu-icon i');
-        const navbarCollapse = document.getElementById('navbarNav');
-    
-        navbarCollapse.addEventListener('shown.bs.collapse', () => {
-        menuIcon.classList.remove('bi-list');
-        menuIcon.classList.add('bi-x');
-        });
-    
-        navbarCollapse.addEventListener('hidden.bs.collapse', () => {
-        menuIcon.classList.remove('bi-x');
-        menuIcon.classList.add('bi-list');
-        });
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
+    </div>/html></body>    </script>
+  </footer><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
+ </body>
+    </html></script>    <script>        const menuIcon = document.querySelector('.menu-icon i');        const navbarCollapse = document.getElementById('navbarNav');            navbarCollapse.addEventListener('shown.bs.collapse', () => {        menuIcon.classList.remove('bi-list');        menuIcon.classList.add('bi-x');        });            navbarCollapse.addEventListener('hidden.bs.collapse', () => {        menuIcon.classList.remove('bi-x');        menuIcon.classList.add('bi-list');        });    </script>    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
 </body>
 </html>

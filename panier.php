@@ -1,3 +1,17 @@
+<?php 
+include 'db.php';
+  session_start();
+
+
+
+
+
+
+
+?>
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -303,11 +317,11 @@ body {
                 </div>
     
                 <!-- Panier et réseaux sociaux -->
-                <div class="d-flex align-items-center justify-content-between order-lg-2 order-1" style="width: 8rem;">
-                    <div><a href="#" class="nav-link" style="color: black ;"><i class="bi bi-cart"></i> </a></div>
-                    <div><a href="#" class="nav-link" style="color: black;"><i class="bi bi-facebook"></i></a></div>
-                    <div><a href="#" class="nav-link" style="color: black;"><i class="bi bi-twitter"></i></a></div>
-                    
+                <div class="d-flex align-items-center gap-3 order-lg-2 order-1">
+                    <a href="#" class="nav-link p-0" style="color: black;"><i class="bi bi-cart"></i></a>
+                    <a href="#" class="nav-link p-0" style="color: black;"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="nav-link p-0" style="color: black;"><i class="bi bi-twitter"></i></a>
+                    <?php include 'includes/bouton_compte.php'; ?>
                 </div>
             </div>
         </nav>
@@ -315,34 +329,7 @@ body {
 
     <div class="container-fluid" style="height: 10rem; align-items: center; display: flex; font-size: 2rem;">Panier</div>
 
-    <div class="row align-items-center cart-item border-bottom pb-3 mb-3">
-        <div class="col-md-2">
-          <img src="images/vase_trc1.jpeg" alt="Lampe Orb" class="img-fluid">
-        </div>
-        <div class="col-md-4">
-          <h5>Lokpo_1</h5>
-        </div>
-        <div class="col-md-3 d-flex align-items-center">
-          <button class="qty-btn">−</button>
-          <span>1</span>
-          <button class="qty-btn">+</button>
-        </div>
-        <div class="col-md-2 text-end">
-          <strong>80,00 €</strong>
-        </div>
-        <div class="col-md-1 text-end">
-          <button class="btn-close" aria-label="Supprimer"></button>
-        </div>
-      </div>
-  
-      <div class="row justify-content-end align-items-center">
-        <div class="col-md-3 text-end">
-          <p class="mb-1">Sous-total</p>
-          <h5>80,00 €</h5>
-          <a href="paiement.html" class="btn checkout-btn w-100 mt-2">Paiement</a>
-        </div>
-      </div>
-    </div>
+
 
 
 

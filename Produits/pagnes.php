@@ -1,16 +1,24 @@
+<?php
+session_start();
+require_once './includes/breadcrumb.php';
+include 'db.php';
+
+// Récupération des catégories
+$categories = $pdo->query("SELECT * FROM categories_d")->fetchAll();
+
+$cat_id = $_GET['cat'] ?? null;
+if ($cat_id) {
+    $stmt = $pdo->prepare("SELECT * FROM produits_d WHERE id_cat = ?");
+    $stmt->execute([$cat_id]);
+    $produits = $stmt->fetchAll();
+} else {
+    $produits = $pdo->query("SELECT * FROM produits_d")->fetchAll();
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>produits</title>
-    <link rel="stylesheet" href="css/bootstrap.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
-
-
-    <style>
          /* Assurez-vous que le nom du site est centré sur les grands écrans */
 @media (min-width: 992px) {
     .navbar-brand {
@@ -235,11 +243,11 @@
                 </div>
     
                 <!-- Panier et réseaux sociaux -->
-                <div class="d-flex align-items-center justify-content-between order-lg-2 order-1" style="width: 8rem;">
-                    <div><a href="#" class="nav-link" style="color: black ;"><i class="bi bi-cart"></i> </a></div>
-                    <div><a href="#" class="nav-link" style="color: black;"><i class="bi bi-facebook"></i></a></div>
-                    <div><a href="#" class="nav-link" style="color: black;"><i class="bi bi-twitter"></i></a></div>
-                    
+                <div class="d-flex align-items-center gap-4 order-lg-2 order-1">
+                    <a href="#" class="nav-link p-0" style="color: black;"><i class="bi bi-cart"></i></a>
+                    <a href="#" class="nav-link p-0" style="color: black;"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="nav-link p-0" style="color: black;"><i class="bi bi-twitter"></i></a>
+                    <?php include 'includes/bouton_compte.php'; ?>
                 </div>
             </div>
         </nav>
@@ -247,14 +255,7 @@
     <div class="container-fluid">
         <div class="container-fluid" style="height: 10rem; align-items: center; display: flex; font-size: 2rem;">Boutique</div>
         <!-- Cette section affichera les breadcrumbs -->
-    <div class="breadcrumb-container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="produits.html">Boutique</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Catégorie</li> <!-- Ce texte changera dynamiquement -->
-            </ol>
-        </nav>
-    </div>
+    <?php showBreadcrumb(); ?>
 
         <hr>
     </div>
@@ -264,13 +265,15 @@
                 <!-- Menu vertical sur grand écran, horizontal sur mobile -->
                 <nav>
                     <ul class="list-unstyled d-flex flex-column menu-vertical">
-                        <li class="menu-item"><a href="produits.php" class="active">Tous</a></li>
-                        <li class="menu-item"><a href="/vases.php">Vases</a></li>
-                        <li class="menu-item"><a href="/pagnes.php">Pagnes</a></li>
-                        <li class="menu-item"><a href="/pots.php">Pots</a></li>
-                        <li class="menu-item"><a href="/tableaux.php">tableaux</a></li>
-                        <li class="menu-item"><a href="/sculptures.php">Sculptures</a></li>
-                    </ul>
+    <li class="menu-item"><a href="produits.php" class="active">Tous</a></li>
+    <?php foreach ($categories as $cat): ?>
+        <li class="menu-item">
+            <a href="produits.php?cat=<?= $cat['id_cat'] ?>">
+                <?= htmlspecialchars($cat['nom_cat']) ?>
+            </a>
+        </li>
+    <?php endforeach; ?>
+</ul>
                 </nav>
                 
                 
@@ -341,10 +344,8 @@
       <!-- Copyright -->
       <div class="text-center text-muted">
         © 2025 Dzesi. Tous droits réservés.
-      </div>
-    </div>
-  </footer>
- 
+      </div>  </footer>
+    </div> 
     
 
 
@@ -382,69 +383,19 @@
 
 
 
-
-
-  <script>
-
-    // Récupère l'URL actuelle
-    const currentPage = window.location.pathname;
-
-    // Fonction qui ajuste dynamiquement le chemin d'accès en fonction de l'URL
-    function updateBreadcrumb() {
-        let categoryName = 'Tous'; // Valeur par défaut
-
-        if (currentPage.includes('vases.html')) {
-            categoryName = 'Vases';
-        } else if (currentPage.includes('pagnes.html')) {
-            categoryName = 'Pagnes';
-        } else if (currentPage.includes('pots.html')) {
-            categoryName = 'Pots';
-        } else if (currentPage.includes('tableaux.html')) {
-            categoryName = 'Tableaux';
-        } else if (currentPage.includes('sculptures.html')) {
-            categoryName = 'Sculptures';
-        }
-
-        // Met à jour le texte du dernier élément breadcrumb
-        const breadcrumbItems = document.querySelectorAll('.breadcrumb-item');
-        breadcrumbItems[breadcrumbItems.length - 1].textContent = categoryName;
-    }
-
-    // Appel après avoir défini currentPage
-    updateBreadcrumb();
-
-    // Active le lien correspondant dans le menu de navigation
-    const links = document.querySelectorAll('.nav-link');
-    links.forEach(link => {
-        if (currentPage.includes(link.getAttribute('href').split('?')[0])) {
-            link.classList.add('active');
-        } else {
-            link.classList.remove('active');
-        }
-    });
-
-
-
-
-
-
-
-
-
-    
-</script>
+  
     <script>
         const menuIcon = document.querySelector('.menu-icon i');
         const navbarCollapse = document.getElementById('navbarNav');
-    
+
         navbarCollapse.addEventListener('shown.bs.collapse', () => {
-        menuIcon.classList.remove('bi-list');
-        menuIcon.classList.add('bi-x');
+            menuIcon.classList.remove('bi-list');
+            menuIcon.classList.add('bi-x');
         });
-    
+
         navbarCollapse.addEventListener('hidden.bs.collapse', () => {
-        menuIcon.classList.remove('bi-x');
-        menuIcon.classList.add('bi-list');
+            menuIcon.classList.remove('bi-x');
+            menuIcon.classList.add('bi-list');
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js" integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq" crossorigin="anonymous"></script>
