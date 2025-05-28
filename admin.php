@@ -273,8 +273,10 @@ if (isset($_POST['edit_admin'])) {
 <div class="modal fade" id="editProductModal<?= $prod['id_prod'] ?>" tabindex="-1"
      aria-labelledby="editProductModalLabel<?= $prod['id_prod'] ?>" aria-hidden="true"
      data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog">
-    <form method="post" class="modal-content edit-product-form" enctype="multipart/form-data" data-modal="#editProductModal<?= $prod['id_prod'] ?>">
+
+    <form method="post" class=" edit-product-form" enctype="multipart/form-data" data-modal="#editProductModal<?= $prod['id_prod'] ?>">
+          <div class="modal-dialog">
+            <div class="modal-content">
       <div class="modal-header" style="background:#F4ECD6; border-bottom:2px solid #000;">
         <h5 class="modal-title" id="editProductModalLabel<?= $prod['id_prod'] ?>">Modifier le produit</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -320,8 +322,10 @@ if (isset($_POST['edit_admin'])) {
       <div class="modal-footer" style="background:#F4ECD6; border-top:2px solid #000;">
         <button type="submit" name="edit_product" class="btn btn-outline-dark">Enregistrer</button>
       </div>
+      </div>
+      </div>
     </form>
-  </div>
+  
 </div>
 <?php endforeach; ?>
                 <?php endforeach; ?>
@@ -386,12 +390,12 @@ if (isset($_POST['edit_admin'])) {
                 <!-- Place toutes les modales ici, après la table -->
                 <?php foreach ($categories as $cat): ?>
                 <div class="modal fade" id="editCategoryModal<?= $cat['id_cat'] ?>" tabindex="-1">
-                  
+        
                     <form method="post" class="modal-content">
                         <div class="modal-dialog">
-                      <div class="modal-header">
+                            <div class="modal-header">
                         <h5 class="modal-title">Modifier la catégorie</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        tton type="button" class="btn-close" data-bs-dismiss="modal"></button>
                       </div>
                       <div class="modal-body">
                         <input type="hidden" name="id" value="<?= $cat['id_cat'] ?>">
@@ -402,10 +406,11 @@ if (isset($_POST['edit_admin'])) {
                       </div>
                       <div class="modal-footer">
                         <button type="submit" name="edit_category" class="btn btn-outline-dark">Enregistrer</button>
-                      </div>
-                      </div>
+                      </div></tr>
+                        </div>
+                      
                     </form>
-                  
+                
                 </div>
                 <?php endforeach; ?>
             </div>
