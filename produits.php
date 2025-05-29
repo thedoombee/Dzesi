@@ -122,6 +122,9 @@ if ($cat_id) {
     padding: 0;
     margin: 0;
 }
+
+
+
 .card .img-container{
     height:25rem;
 }
@@ -202,38 +205,6 @@ if ($cat_id) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     </style>
 </head>
 <body>
@@ -275,6 +246,8 @@ if ($cat_id) {
             </div>
         </nav>
     </div>
+
+    
     <div class="container-fluid">
         <div class="container-fluid" style="height: 10rem; align-items: center; display: flex; font-size: 2rem;">Boutique</div>
         <!-- Cette section affichera les breadcrumbs -->
@@ -306,18 +279,20 @@ if ($cat_id) {
                         <div class="col-12 text-center text-muted mt-5">Aucun produit dans cette catégorie.</div>
                     <?php endif; ?>
                     <?php foreach ($produits as $prod): ?>
-                        <div class="col-md-4 mb-4">
-                            <div class="card h-100 border-0">
-                                <div class="img-container">
-                                    <img src="<?= htmlspecialchars($prod['image']) ?>" class="card-img-top" alt="<?= htmlspecialchars($prod['nom_prod']) ?>" style="object-fit:cover; height:300px;">
-                                </div>
-                                <div class="card-body px-0">
-                                    <div class="fw-semibold mb-2"><?= htmlspecialchars($prod['nom_prod']) ?></div>
-                                    <div class="text-muted"><?= number_format($prod['prix'], 2, ',', ' ') ?> FCFA</div>
-                                </div>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0">
+            <a href="details_produit.php?id=<?= $prod['id_prod'] ?>" style="text-decoration:none; color:inherit;">
+                <div class="img-container">
+                    <img src="<?= htmlspecialchars($prod['image']) ?>" class="card-img-top" alt="<?= htmlspecialchars($prod['nom_prod']) ?>" style="object-fit:cover; height:300px;">
+                </div>
+                <div class="card-body px-0">
+                    <div class="fw-semibold mb-2"><?= htmlspecialchars($prod['nom_prod']) ?></div>
+                    <div class="text-muted"><?= number_format($prod['prix'], 2, ',', ' ') ?> FCFA</div>
+                </div>
+            </a>
+        </div>
+    </div>
+<?php endforeach; ?>
                 </div>
             </div>
         </div>

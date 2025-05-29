@@ -105,10 +105,10 @@ if (isset($_GET['delete_order'])) {
 // Statistiques
 $chiffreAffaire = $pdo->query("SELECT SUM(total) as ca FROM commandes_d")->fetch()['ca'] ?? 0;
 $produitsStats = $pdo->query("
-    SELECT p.nom_prod, COUNT(c.id_com) as nb_commandes
-    FROM produits_d p
-    LEFT JOIN commandes_d c ON p.id_prod = c.id_com
-    GROUP BY p.id_prod
+    SELECT nom_prod, SUM(quantite) AS quantite_totale, COUNT(DISTINCT id_com) AS nb_commandes
+    FROM commandes_d
+    GROUP BY nom_prod
+    ORDER BY quantite_totale DESC
 ")->fetchAll();
 
 // Récupération des données pour affichage
@@ -149,6 +149,34 @@ if (isset($_POST['edit_admin'])) {
     $admin = $stmt->fetch();
     $profil_message = "Profil mis à jour avec succès.";
 }
+
+// GESTION DE LA SUPPRESSION DE REÇU (doit être AVANT la récupération des reçus)
+if (isset($_GET['delete_recu'])) {
+    $num_recu = $_GET['delete_recu'];
+    $stmt = $pdo->prepare("DELETE FROM commandes_d WHERE num_recu = ?");
+    $stmt->execute([$num_recu]);
+    // Redirection pour éviter la suppression multiple au rafraîchissement
+    header('Location: admin.php#recus');
+    exit();
+}
+
+// Ensuite seulement, tu fais la récupération des reçus :
+$recu_search = $_GET['recu_search'] ?? '';
+$where = '';
+$params = [];
+if ($recu_search) {
+    $where = "WHERE num_recu = ?";
+    $params[] = $recu_search;
+}
+$recus = $pdo->prepare("
+    SELECT num_recu, id_com, date_com, id_uti, SUM(total) as total
+    FROM commandes_d
+    $where
+    GROUP BY num_recu, id_com, date_com, id_uti
+    ORDER BY date_com DESC
+");
+$recus->execute($params);
+$liste_recus = $recus->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -209,7 +237,7 @@ if (isset($_POST['edit_admin'])) {
         <div class="container-fluid">
             <a class="navbar-brand mx-auto" href="index.php" style="color: black;">Dzesi</a>
             <div class="d-flex align-items-center gap-3">
-                <a href="index.php" class="btn btn-outline-dark">Retour au site</a>
+                <a href="deconnexion.php" class="btn btn-outline-dark">Retour au site</a>
             </div>
         </div>
     </nav>
@@ -231,6 +259,9 @@ if (isset($_POST['edit_admin'])) {
             <li class="nav-item" role="presentation">
                 <button class="nav-link" style="color: #000; border-radius: 0;" id="profil-tab" data-bs-toggle="tab" data-bs-target="#profil" type="button" role="tab">Mon profil</button>
             </li>
+            <li class="nav-item" role="presentation">
+    <button class="nav-link" style="color: #000; border-radius: 0;" id="recus-tab" data-bs-toggle="tab" data-bs-target="#recus" type="button" role="tab">Reçus</button>
+</li>
         </ul>
         <div class="tab-content" id="adminTabsContent">
             <!-- Produits -->
@@ -420,13 +451,14 @@ if (isset($_POST['edit_admin'])) {
                 <table class="table table-bordered table-hover">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Client</th>
+                            <th>ID commande</th>
+                            <th>ID utilisateur</th>
+                            <th>Nom produit</th>
                             <th>Date</th>
-                            <th>Statut</th>
                             <th>Total</th>
                             <th>Adresse livraison</th>
                             <th>Mode paiement</th>
+                            <th>Image</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -434,12 +466,17 @@ if (isset($_POST['edit_admin'])) {
                         <?php foreach ($commandes as $cmd): ?>
                         <tr>
                             <td><?= $cmd['id_com'] ?></td>
-                            <td><?= htmlspecialchars($cmd['prenom_uti'] . ' ' . $cmd['nom_uti']) ?></td>
+                            <td><?= $cmd['id_uti'] ?></td>
+                            <td><?= htmlspecialchars($cmd['nom_prod']) ?></td>
                             <td><?= $cmd['date_com'] ?></td>
-                            <td><?= htmlspecialchars($cmd['statut']) ?></td>
                             <td><?= number_format($cmd['total'], 2, ',', ' ') ?> €</td>
                             <td><?= htmlspecialchars($cmd['adresse_livraison']) ?></td>
                             <td><?= htmlspecialchars($cmd['mode_paiement']) ?></td>
+                            <td>
+                    <?php if (!empty($cmd['image'])): ?>
+                        <img src="<?= htmlspecialchars($cmd['image']) ?>" alt="" style="width:60px;height:60px;object-fit:cover;">
+                    <?php endif; ?>
+                </td>
                             <td>
                                 <a href="?delete_order=<?= $cmd['id_com'] ?>" class="btn btn-outline-dark btn-sm" onclick="return confirm('Supprimer cette commande ?')"><i class="bi bi-trash"></i></a>
                             </td>
@@ -455,19 +492,19 @@ if (isset($_POST['edit_admin'])) {
                     <strong>Chiffre d'affaires général :</strong>
                     <span><?= number_format($chiffreAffaire, 2, ',', ' ') ?> €</span>
                 </div>
-                <h5>Produits achetés et nombre de commandes</h5>
+                <h5>Produits achetés</h5>
                 <table class="table table-bordered table-hover">
                     <thead>
                         <tr>
                             <th>Produit</th>
-                            <th>Nombre de commandes</th>
+                            <th>Quantité totale achetée</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($produitsStats as $stat): ?>
                         <tr>
-                            <td><?= htmlspecialchars($stat['nom']) ?></td>
-                            <td><?= $stat['nb_commandes'] ?></td>
+                            <td><?= htmlspecialchars($stat['nom_prod']) ?></td>
+                            <td><?= $stat['quantite_totale'] ?></td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -497,6 +534,57 @@ if (isset($_POST['edit_admin'])) {
                         <button type="submit" name="edit_profil" class="btn btn-outline-dark">Enregistrer les modifications</button>
                     </div>
                 </form>
+            </div>
+            <!-- Reçus -->
+            <div class="tab-pane fade" id="recus" role="tabpanel">
+                <h4>Recherche de reçu</h4>
+                <form method="get" class="row g-3 mb-4">
+                    <div class="col-md-8">
+                        <input type="text" name="recu_search" class="form-control" placeholder="Numéro de reçu" value="<?= htmlspecialchars($recu_search) ?>">
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-outline-dark w-100">Rechercher</button>
+                    </div>
+                </form>
+
+                <?php if ($liste_recus): ?>
+                <h5>Résultats de recherche</h5>
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Numéro de reçu</th>
+                            <th>ID commande</th>
+                            <th>Date</th>
+                            <th>ID utilisateur</th>
+                            <th>Total</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($liste_recus as $recu): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($recu['num_recu'] ?? '') ?></td>
+                            <td><?= $recu['id_com'] ?? '' ?></td>
+                            <td><?= $recu['date_com'] ?? '' ?></td>
+                            <td><?= $recu['id_uti'] ?? '' ?></td>
+                            <td><?= number_format($recu['total'] ?? 0, 2, ',', ' ') ?> €</td>
+                            <td>
+                                <a href="recu.php?num_recu=<?= urlencode($recu['num_recu'] ?? '') ?>&id_com=<?= urlencode($recu['id_com'] ?? '') ?>" class="btn btn-outline-dark btn-sm" target="_blank">
+    Voir / Télécharger
+</a>
+
+                                <a href="?delete_recu=<?= urlencode($recu['num_recu'] ??'') ?>#recus" class="btn btn-outline-danger btn-sm ms-1"
+                                   onclick="return confirm('Supprimer ce reçu ? Cette action est irréversible !')">
+                                    Supprimer
+                                </a>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <?php else: ?>
+                <div class="alert alert-info">Aucun reçu trouvé pour cette recherche.</div>
+                <?php endif; ?>
             </div>
         </div>
     </div>

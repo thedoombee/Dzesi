@@ -1,27 +1,78 @@
-<?php 
-include 'db.php';
-  session_start();
+<?php
+session_start();
+require_once 'db.php';
 
+// Ajouter au panier
+if (isset($_POST['ajouter_panier'])) {
+    $id_prod = intval($_POST['id_prod']);
+    $quantite = max(1, intval($_POST['quantite'] ?? 1));
+    if (!isset($_SESSION['panier'])) $_SESSION['panier'] = [];
+    if (isset($_SESSION['panier'][$id_prod])) {
+        $_SESSION['panier'][$id_prod] += $quantite;
+    } else {
+        $_SESSION['panier'][$id_prod] = $quantite;
+    }
+    // Redirection pour éviter le repost
+    header('Location: panier.php');
+    exit;
+}
 
+// Gérer + et -
+if (isset($_POST['plus'])) {
+    $id_prod = intval($_POST['id_prod']);
+    if (isset($_SESSION['panier'][$id_prod])) {
+        $_SESSION['panier'][$id_prod]++;
+    }
+    header('Location: panier.php');
+    exit;
+}
+if (isset($_POST['moins'])) {
+    $id_prod = intval($_POST['id_prod']);
+    if (isset($_SESSION['panier'][$id_prod]) && $_SESSION['panier'][$id_prod] > 1) {
+        $_SESSION['panier'][$id_prod]--;
+    }
+    header('Location: panier.php');
+    exit;
+}
 
+// Supprimer un produit
+if (isset($_GET['supprimer'])) {
+    $id_sup = intval($_GET['supprimer']);
+    unset($_SESSION['panier'][$id_sup]);
+    header('Location: panier.php');
+    exit;
+}
 
+// Récupérer les produits du panier
+$panier = $_SESSION['panier'] ?? [];
+$produits_panier = [];
+$total = 0;
+if (!empty($panier)) {
+    $ids = array_keys($panier);
+    // Sécurité : ne faire la requête que si $ids n'est pas vide
+    $placeholders = implode(',', array_fill(0, count($ids), '?'));
+    $stmt = $pdo->prepare("SELECT * FROM produits_d WHERE id_prod IN ($placeholders)");
+    $stmt->execute($ids);
+    $produits_panier = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-
-
+    // Associer quantité et sous-total à chaque produit
+    foreach ($produits_panier as &$prod) {
+        $prod['quantite'] = isset($panier[$prod['id_prod']]) ? $panier[$prod['id_prod']] : 0;
+        $prod['sous_total'] = $prod['prix'] * $prod['quantite'];
+        $total += $prod['sous_total'];
+    }
+    unset($prod); // Bonnes pratiques PHP
+}
 ?>
-
-
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>produit</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-SgOJa3DmI69IUzQ2PVdRZhwQ+dy64/BUtbMJw1MZ8t5HZApcHrRKUc4W0kG879m7" crossorigin="anonymous">
+    <title>Panier</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
-
         /*Ensemble des prérequis */
         @media (min-width: 992px) {
     .navbar-brand {
@@ -132,6 +183,7 @@ body {
             font-family: 'Arial', sans-serif;
             padding-top: 80px;
             color: #333;
+            background-color: #f9f9f9;
         }
         .product-main-image {
             width: 100%;
@@ -265,26 +317,6 @@ body {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     </style>
 </head>
 <body>
@@ -325,59 +357,47 @@ body {
                 </div>
             </div>
         </nav>
-    </div>
+    </div> <!-- Fin du nav-bar -->
 
     <div class="container-fluid" style="height: 10rem; align-items: center; display: flex; font-size: 2rem;">Panier</div>
 
+    <div class="container bg-white p-4 rounded" style="min-height:200px;">
+        <?php if (empty($produits_panier)): ?>
+            <div class="text-center text-muted">Votre panier est vide.</div>
+        <?php else: ?>
+            <div class="row align-items-center border-bottom pb-3 mb-3">
+                <?php foreach ($produits_panier as $prod): ?>
+                    <div class="col-2">
+                        <img src="<?= htmlspecialchars($prod['image']) ?>" class="img-fluid" style="max-width:80px;">
+                    </div>
+                    <div class="col-3"><?= htmlspecialchars($prod['nom_prod']) ?></div>
+                    <div class="col-3 text-center">
+                        <form method="post" action="panier.php" class="d-inline">
+                            <input type="hidden" name="id_prod" value="<?= $prod['id_prod'] ?>">
+                            <button type="submit" name="moins" class="qty-btn btn btn-link p-0">-</button>
+                        </form>
+                        <?= $prod['quantite'] ?>
+                        <form method="post" action="panier.php" class="d-inline">
+                            <input type="hidden" name="id_prod" value="<?= $prod['id_prod'] ?>">
+                            <button type="submit" name="plus" class="qty-btn btn btn-link p-0">+</button>
+                        </form>
+                    </div>
+                    <div class="col-2 fw-bold"><?= number_format($prod['sous_total'], 2, ',', ' ') ?> €</div>
+                    <div class="col-2 text-end">
+                        <a href="panier.php?supprimer=<?= $prod['id_prod'] ?>" class="text-dark fs-4" title="Supprimer"><i class="bi bi-x"></i></a>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <div class="row justify-content-end">
+                <div class="col-auto text-end">
+                    <div class="fw-bold">Sous-total</div>
+                    <div class="fs-4"><?= number_format($total, 2, ',', ' ') ?> €</div>
+                    <a href="traitement_commande.php" class="btn btn-outline-dark mt-2" style="border-radius:0; font-weight:600;">Paiement</a>
+                </div>
+            </div>
+        <?php endif; ?>
+    </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <script>
-        const menuIcon = document.querySelector('.menu-icon i');
-        const navbarCollapse = document.getElementById('navbarNav');
-    
-        navbarCollapse.addEventListener('shown.bs.collapse', () => {
-        menuIcon.classList.remove('bi-list');
-        menuIcon.classList.add('bi-x');
-        });
-    
-        navbarCollapse.addEventListener('hidden.bs.collapse', () => {
-        menuIcon.classList.remove('bi-x');
-        menuIcon.classList.add('bi-list');
-        });
-    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
