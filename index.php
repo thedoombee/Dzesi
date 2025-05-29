@@ -275,6 +275,7 @@ include 'db.php';
             </div>
         </div>
     </div>
+    
     <div class="container mt-5">
         <div class="row">
           <!-- Première colonne -->

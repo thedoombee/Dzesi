@@ -65,6 +65,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $prod['quantite'],
                 $num_recu
             ]);
+
+            // Mise à jour du stock
+            $stmt = $pdo->prepare("UPDATE produits_d SET quantite_stock = quantite_stock - ? WHERE id_prod = ?");
+            $stmt->execute([$prod['quantite'], $prod['id_prod']]);
         }
         $_SESSION['panier'] = [];
         $message = "Commande enregistrée ! (Paiement test Stripe)";
