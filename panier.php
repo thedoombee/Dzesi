@@ -324,7 +324,11 @@ body {
         <nav class="navbar navbar-expand-lg  " style="background-color: white; box-shadow: 0 2px ;">
             <div class="container-fluid">
                 <!-- Nom du site -->
-                <a class="navbar-brand mx-auto order-lg-1 order-0" href="#" style="color: black;">Dzesi</a>
+                <a class="navbar-brand mx-auto order-lg-1 order-0" href="./index.php" ><div class="col-md-4 mb-1 d-flex align-items-center justify-content-center">
+  <div style="font-family: 'Segoe Script', 'Brush Script MT', cursive; font-size: 2.7rem; font-weight: bold; letter-spacing: 2px; color: #7a6a3a; text-shadow: 1px 1px 8px #f4ecd6;">
+    Dzesi
+  </div>
+</div></a>
     
                 <!-- Bouton du menu hamburger -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -340,17 +344,17 @@ body {
                             <a id="boutique-link" class="nav-link" href="produits.php" style="color: black;">Boutique</a>
                         </li>
                         <li class="nav-item">
-                            <a id="a-propos-link" class="nav-link" href="a-propos.html" style="color: black;">À propos</a>
+                            <a id="a-propos-link" class="nav-link" href="a-propos.php" style="color: black;">À propos</a>
                         </li>
                         <li class="nav-item">
-                            <a id="contact-link" class="nav-link" href="contact.html" style="color: black;">Contact</a>
+                            <a id="contact-link" class="nav-link" href="contact.php" style="color: black;">Contact</a>
                         </li>
                     </ul>
                 </div>
     
                 <!-- Panier et réseaux sociaux -->
                 <div class="d-flex align-items-center gap-3 order-lg-2 order-1">
-                    <a href="#" class="nav-link p-0" style="color: black;"><i class="bi bi-cart"></i></a>
+                    <a href="./panier.php" class="nav-link p-0" style="color: black;"><i class="bi bi-cart"></i></a>
                     <a href="#" class="nav-link p-0" style="color: black;"><i class="bi bi-facebook"></i></a>
                     <a href="#" class="nav-link p-0" style="color: black;"><i class="bi bi-twitter"></i></a>
                     <?php include 'includes/bouton_compte.php'; ?>
@@ -382,7 +386,7 @@ body {
                             <button type="submit" name="plus" class="qty-btn btn btn-link p-0">+</button>
                         </form>
                     </div>
-                    <div class="col-2 fw-bold"><?= number_format($prod['sous_total'], 2, ',', ' ') ?> €</div>
+                    <div class="col-2 fw-bold"><?= number_format($prod['sous_total'], 2, ',', ' ') ?> FCFA</div>
                     <div class="col-2 text-end">
                         <a href="panier.php?supprimer=<?= $prod['id_prod'] ?>" class="text-dark fs-4" title="Supprimer"><i class="bi bi-x"></i></a>
                     </div>
@@ -391,12 +395,59 @@ body {
             <div class="row justify-content-end">
                 <div class="col-auto text-end">
                     <div class="fw-bold">Sous-total</div>
-                    <div class="fs-4"><?= number_format($total, 2, ',', ' ') ?> €</div>
+                    <div class="fs-4"><?= number_format($total, 2, ',', ' ') ?> FCFA</div>
                     <a href="traitement_commande.php" class="btn btn-outline-dark mt-2" style="border-radius:0; font-weight:600;">Paiement</a>
                 </div>
             </div>
         <?php endif; ?>
     </div>
+
+
+
+
+    <footer class=" text-dark pt-5 pb-3 mt-5 border-top">
+    <div class="container-fluid">
+      <div class="row">
+  
+        <!-- FAQ -->
+       <!-- Remplace la section FAQ par ceci -->
+<div class="col-md-4 mb-4 d-flex align-items-center justify-content-center">
+  <div style="font-family: 'Segoe Script', 'Brush Script MT', cursive; font-size: 2.7rem; font-weight: bold; letter-spacing: 2px; color: #7a6a3a; text-shadow: 1px 1px 8px #f4ecd6;">
+    Dzesi
+  </div>
+</div>
+  
+        <!-- Contacts -->
+        <div class="col-md-4 mb-4">
+          <h5 class="mb-3">Contact</h5>
+          <ul class="list-unstyled">
+            <li class="text-muted">Email : <a href="mailto:contact@Dzesi.com" class="text-decoration-none">contact@Dzesi.com</a></li>
+            <li class="text-muted">Téléphone : +228 90 00 00 00</li>
+            <li class="text-muted">Adresse : Lomé, Togo</li>
+          </ul>
+        </div>
+  
+        <!-- Réseaux sociaux -->
+        <div class="col-md-4 mb-4">
+          <h5 class="mb-3">Suivez-nous</h5>
+          <div class="d-flex gap-3">
+            <a href="#" class="text-dark"><i class="bi bi-facebook fs-4"></i></a>
+            <a href="#" class="text-dark"><i class="bi bi-instagram fs-4"></i></a>
+            <a href="#" class="text-dark"><i class="bi bi-twitter fs-4"></i></a>
+            <a href="#" class="text-dark"><i class="bi bi-youtube fs-4"></i></a>
+          </div>
+        </div>
+  
+      </div>
+  
+      <hr>
+  
+      <!-- Copyright -->
+      <div class="text-center text-muted">
+        © 2025 Dzesi. Tous droits réservés.
+      </div>
+    </div>
+  </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
 </body>

@@ -1,13 +1,25 @@
-<?php 
+<?php
 include 'db.php';
-  session_start();
+session_start();
 
+// Récupérer toutes les catégories
+$categories = $pdo->query("SELECT * FROM categories_d")->fetchAll(PDO::FETCH_ASSOC);
 
+$cat_produits = [];
+foreach ($categories as $cat) {
+    $stmt = $pdo->prepare("SELECT * FROM produits_d WHERE id_cat = ? ORDER BY id_prod ASC LIMIT 1");
+    $stmt->execute([$cat['id_cat']]);
+    $prod = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($prod) {
+        $cat_produits[] = [
+            'id_cat' => $cat['id_cat'],
+            'nom_cat' => $cat['nom_cat'],
+            'image' => $prod['image'],
+        ];
+    }
+}
 
-
-
-
-
+$produits_aleatoires = $pdo->query("SELECT * FROM produits_d ORDER BY RAND() LIMIT 3")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 
@@ -164,7 +176,12 @@ include 'db.php';
         <nav class="navbar navbar-expand-lg fixed-top " style="background-color:white;box-shadow: 0 2px ;">
             <div class="container-fluid">
                 <!-- Nom du site -->
-                <a class="navbar-brand mx-auto order-lg-1 order-0" href="#" style="color: black;">Dzesi</a>
+                 
+                <a class="navbar-brand mx-auto order-lg-1 order-0" href="./index.php" ><div class="col-md-4 mb-1 d-flex align-items-center justify-content-center">
+  <div style="font-family: 'Segoe Script', 'Brush Script MT', cursive; font-size: 2.7rem; font-weight: bold; letter-spacing: 2px; color: #7a6a3a; text-shadow: 1px 1px 8px #f4ecd6;">
+    Dzesi
+  </div>
+</div></a>
     
                 <!-- Bouton du menu hamburger -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -180,10 +197,10 @@ include 'db.php';
                         <a id="boutique-link" class="nav-link" href="produits.php" style="color: black;">Boutique</a>
                     </li>
                     <li class="nav-item">
-                        <a id="a-propos-link" class="nav-link" href="a-propos.html" style="color: black;">À propos</a>
+                        <a id="a-propos-link" class="nav-link" href="a-propos.php" style="color: black;">À propos</a>
                     </li>
                     <li class="nav-item">
-                        <a id="contact-link" class="nav-link" href="contact.html" style="color: black;">Contact</a>
+                        <a id="contact-link" class="nav-link" href="contact.php" style="color: black;">Contact</a>
                     </li>
                     
                     </ul>
@@ -191,7 +208,7 @@ include 'db.php';
     
                 <!-- Panier et réseaux sociaux -->
                 <div class="d-flex align-items-center gap-3 order-lg-2 order-1" style="width: auto;">
-    <div><a href="#" class="nav-link px-2" style="color: black;"><i class="bi bi-cart"></i></a></div>
+    <div><a href="./panier.php" class="nav-link px-2" style="color: black;"><i class="bi bi-cart"></i></a></div>
     <div><a href="#" class="nav-link px-2" style="color: black;"><i class="bi bi-facebook"></i></a></div>
     <div><a href="#" class="nav-link px-2" style="color: black;"><i class="bi bi-twitter"></i></a></div>
     <?php include 'includes/bouton_compte.php'; ?>
@@ -238,135 +255,109 @@ include 'db.php';
             NOUVEAUTES
         </p>
     </div>
-    
-    <div class="row" style="background-color: beige;">
-        <div class="col-md-6" >
-            <div id="carouselExampleAutoplaying" class="carousel carousel-dark slide" data-bs-ride="carousel">
+
+
+    <div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6">
+            <div id="carouselProduits" class="carousel carousel-dark slide" data-bs-ride="carousel">
                 <div class="carousel-inner">
-                  <div class="carousel-item active">
-                    <img src="./images/tableau_afrc1.jpeg" class="d-block w-100" alt="...">
-                  </div>
-                  <div class="carousel-item">
-                    <img src="./images/tableau_afrc2.jpeg" class="d-block w-100" alt="...">
-                  </div>
-                  <div class="carousel-item">
-                    <img src="./images/tableau_afrc3.jpeg" class="d-block w-100" alt="...">
-                  </div>
+                    <?php foreach ($produits_aleatoires as $i => $prod): ?>
+                        <div class="carousel-item <?= $i === 0 ? 'active' : '' ?>">
+                            <a href="details_produit.php?id=<?= urlencode($prod['id_prod']) ?>">
+                                <img src="<?= htmlspecialchars($prod['image']) ?>" class="d-block w-100" alt="<?= htmlspecialchars($prod['nom_prod']) ?>">
+                            </a>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
-                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="prev">
-                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                  <span class="visually-hidden">Previous</span>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselProduits" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Précédent</span>
                 </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="next">
-                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                  <span class="visually-hidden">Next</span>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselProduits" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Suivant</span>
                 </button>
-              </div>
+            </div>
         </div>
 
         <div class="col-md-6" style=" display: flex; align-items:center; justify-content:center; ">
             <div>
                 <p style="font-size: 2rem; padding: 1rem;padding-left: 0.5rem;">
-                    Faites le découverte de fabuleuses pieces avec ces nouveautés
+                    Découvrez nos produits phares à travers ce carousel
                 </p>
                 <div style=" justify-content: center; align-items: center; display: flex;">
-                    <a href="#" class="btn  " style="border-radius: 0; border: 2px solid black; margin-bottom: 1rem;"> Explorer </a>
+                    <a href="produits.php" class="btn  " style="border-radius: 0; border: 2px solid black; margin-bottom: 1rem;"> Explorer </a>
                 </div>
             </div>
         </div>
     </div>
+</div>
     
-    <div class="container mt-5">
-        <div class="row">
-          <!-- Première colonne -->
-          <div class="col-md-6 d-flex flex-column align-items-center">
-            <div class="mb-3 image-container">
-              <!-- Emplacement de l'image -->
-              <img src="./images/pages_tg.jpg" alt="Image 1" class="img-fluid">
-            </div>
-            <button class="btn " style="border-radius: 0; border: 2px solid black; margin-bottom: 1rem;">Voir les pagnes</button>
-          </div>
-          
-          <!-- Deuxième colonne -->
-          <div class="col-md-6 d-flex flex-column align-items-center">
-            <div class="mb-3 image-container">
-              <!-- Emplacement de l'image -->
-              <img src="./images/pot_ceramic.jpg" alt="Image 2" class="img-fluid">
-            </div>
-            <button class="btn "style=" border-radius: 0; border: 2px solid black; ">Voir les pots</button>
-          </div>
-        </div>
-    </div>
-    <div class="container mt-5">
-      <div class="row">
-        <!-- Première colonne -->
-        <div class="col-md-6 d-flex flex-column align-items-center">
-          <div class="mb-3 image-container">
-            <!-- Emplacement de l'image -->
-            <img src="./images/vase_trc1.jpeg" alt="Image 1" class="img-fluid">
-          </div>
-          <button class="btn "style="border-radius: 0; border: 2px solid black;margin-bottom:1rem; ">Voir les vases </button>
-        </div>
-        
-        <!-- Deuxième colonne -->
-        <div class="col-md-6 d-flex flex-column align-items-center">
-          <div class="mb-3 image-container">
-            <!-- Emplacement de l'image -->
-            <img src="./images/tableau_afrc1.jpeg" alt="Image 2" class="img-fluid">
-          </div>
-          <button class="btn " style="border-radius: 0; border: 2px solid black;">Voir les tableaux</button>
-        </div>
-      </div>
-    </div>
+    
+  
 
+    <!-- Génération dynamique des catégories -->
+<div class="container mt-5">
+    <div class="row">
+        <?php foreach ($cat_produits as $cat): ?>
+            <div class="col-md-6 d-flex flex-column align-items-center mb-4">
+                <div class="mb-3 image-container">
+                    <img src="<?= htmlspecialchars($cat['image']) ?>" alt="<?= htmlspecialchars($cat['nom_cat']) ?>" class="img-fluid">
+                </div>
+                <a href="produits.php?cat=<?= urlencode($cat['id_cat']) ?>" class="btn" style="border-radius: 0; border: 2px solid black; margin-bottom: 1rem;">
+                    Voir les <?= htmlspecialchars($cat['nom_cat']) ?>
+                </a>
+            </div>
+        <?php endforeach; ?>
+    </div>
+</div>
 
 
 
     <footer class=" text-dark pt-5 pb-3 mt-5 border-top">
-        <div class="container">
-          <div class="row">
-      
-            <!-- FAQ -->
-            <div class="col-md-4 mb-4">
-              <h5 class="mb-3">FAQ</h5>
-              <ul class="list-unstyled">
-                <li><a href="#" class="text-decoration-none text-muted">Comment soumettre une recette ?</a></li>
-                <li><a href="#" class="text-decoration-none text-muted">Comment fonctionne le blog ?</a></li>
-                <li><a href="#" class="text-decoration-none text-muted">Puis-je partager sur les réseaux ?</a></li>
-              </ul>
-            </div>
-      
-            <!-- Contacts -->
-            <div class="col-md-4 mb-4">
-              <h5 class="mb-3">Contact</h5>
-              <ul class="list-unstyled">
-                <li class="text-muted">Email : <a href="mailto:contact@Dzesi.com" class="text-decoration-none">contact@Dzesi.com</a></li>
-                <li class="text-muted">Téléphone : +228 90 00 00 00</li>
-                <li class="text-muted">Adresse : Lomé, Togo</li>
-              </ul>
-            </div>
-      
-            <!-- Réseaux sociaux -->
-            <div class="col-md-4 mb-4">
-              <h5 class="mb-3">Suivez-nous</h5>
-              <div class="d-flex gap-3">
-                <a href="#" class="text-dark"><i class="bi bi-facebook fs-4"></i></a>
-                <a href="#" class="text-dark"><i class="bi bi-instagram fs-4"></i></a>
-                <a href="#" class="text-dark"><i class="bi bi-twitter fs-4"></i></a>
-                <a href="#" class="text-dark"><i class="bi bi-youtube fs-4"></i></a>
-              </div>
-            </div>
-      
-          </div>
-      
-          <hr>
-      
-          <!-- Copyright -->
-          <div class="text-center text-muted">
-            © 2025 Dzesi. Tous droits réservés.
+    <div class="container-fluid">
+      <div class="row">
+  
+        <!-- FAQ -->
+       <!-- Remplace la section FAQ par ceci -->
+<div class="col-md-4 mb-4 d-flex align-items-center justify-content-center">
+  <div style="font-family: 'Segoe Script', 'Brush Script MT', cursive; font-size: 2.7rem; font-weight: bold; letter-spacing: 2px; color: #7a6a3a; text-shadow: 1px 1px 8px #f4ecd6;">
+    Dzesi
+  </div>
+</div>
+  
+        <!-- Contacts -->
+        <div class="col-md-4 mb-4">
+          <h5 class="mb-3">Contact</h5>
+          <ul class="list-unstyled">
+            <li class="text-muted">Email : <a href="mailto:contact@Dzesi.com" class="text-decoration-none">contact@Dzesi.com</a></li>
+            <li class="text-muted">Téléphone : +228 90 00 00 00</li>
+            <li class="text-muted">Adresse : Lomé, Togo</li>
+          </ul>
+        </div>
+  
+        <!-- Réseaux sociaux -->
+        <div class="col-md-4 mb-4">
+          <h5 class="mb-3">Suivez-nous</h5>
+          <div class="d-flex gap-3">
+            <a href="#" class="text-dark"><i class="bi bi-facebook fs-4"></i></a>
+            <a href="#" class="text-dark"><i class="bi bi-instagram fs-4"></i></a>
+            <a href="#" class="text-dark"><i class="bi bi-twitter fs-4"></i></a>
+            <a href="#" class="text-dark"><i class="bi bi-youtube fs-4"></i></a>
           </div>
         </div>
-      </footer>
+  
+      </div>
+  
+      <hr>
+  
+      <!-- Copyright -->
+      <div class="text-center text-muted">
+        © 2025 Dzesi. Tous droits réservés.
+      </div>
+    </div>
+  </footer>
 
 
 

@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (password_verify($mot_de_passe, $user['mot_de_passe'])) {
             $_SESSION['user'] = $user['email_uti'];
             $_SESSION['role'] = 'user';
-            $_SESSION['id_uti'] = $user['id_uti']; // Ajout de l'ID utilisateur à la session
+            $_SESSION['id_uti'] = $user['id_uti'];
             header('Location: index.php');
             exit();
         } else {
@@ -46,19 +46,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Connexion</title>
+  <title>Connexion - Dzesi</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <style>
     body {
-      background-color: #f9f9f9;
-      padding: 2rem;
+      background-color: #F4ECD6;
+      min-height: 100vh;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+    .dzesi-navbar {
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .dzesi-brand {
+      font-family: 'Segoe Script', 'Brush Script MT', cursive;
+      font-size: 2.1rem;
+      font-weight: bold;
+      color: #7a6a3a !important;
+      letter-spacing: 2px;
+      text-shadow: 1px 1px 8px #f4ecd6;
     }
     .form-container {
-      max-width: 400px;
-      margin: auto;
-      background: white;
-      padding: 2rem;
-      border: 1px solid #ddd;
+      max-width: 410px;
+      margin: 5rem auto 2rem auto;
+      background: #fff;
+      padding: 2.5rem 2rem 2rem 2rem;
+      border-radius: 0;
+      border: 2px solid black;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    }
+    .form-container input{
+      border-radius: 0;
     }
     .btn-black {
       border: 2px solid black;
@@ -66,23 +85,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       width: 100%;
       padding: 10px;
       font-weight: 600;
+      border-radius: 0;
       transition: 0.2s;
+      letter-spacing: 1px;
     }
     .btn-black:hover {
       background-color: black;
       color: white;
+      border-radius: 0;
     }
     .error {
-      color: red;
-      font-size: 0.9rem;
+      color: #b02a37;
+      font-size: 0.97rem;
       margin-top: 0.5rem;
+      text-align: center;
     }
+    .dzesi-link {
+      color: #7a6a3a;
+      text-decoration: underline;
+      font-weight: 500;
+    }
+    .dzesi-link:hover {
+      color: #222;
+      text-decoration: none;
+    }
+    .dzesi-title {
+      font-family: 'Segoe Script', 'Brush Script MT', cursive;
+      color: #7a6a3a;
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+    .form-container input:focus, 
+.form-container input:active, 
+.form-container textarea:focus, 
+.form-container textarea:active {
+  border-color: #F4ECD6 !important;
+  box-shadow: 0 0 0 0.2rem rgba(244,236,214,0.5) !important;
+  outline: none !important;
+}
   </style>
 </head>
 <body>
+  <nav class="navbar dzesi-navbar navbar-expand-lg fixed-top">
+    <div class="container-fluid">
+      <a class="dzesi-brand mx-auto" style="text-decoration: none;" href="index.php">Dzesi</a>
+    </div>
+  </nav>
 
-  <div class="form-container">
-    <h2 class="mb-4 text-center">Connexion</h2>
+  <div class="form-container" >
+    <div class="dzesi-title mb-2">Connexion</div>
     <form id="loginForm" action="connexion.php" method="POST">
       <div class="mb-3">
         <label for="email" class="form-label">Adresse e-mail</label>
@@ -97,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <?php endif; ?>
       <div id="loginError" class="error"></div>
       <button type="submit" class="btn btn-black mt-3">Se connecter</button>
-      <p class="mt-3 text-center">Pas encore de compte ? <a href="inscription.php">Inscrivez-vous</a></p>
+      <p class="mt-3 text-center">Pas encore de compte ? <a href="inscription.php" class="dzesi-link">Inscrivez-vous</a></p>
     </form>
   </div>
 

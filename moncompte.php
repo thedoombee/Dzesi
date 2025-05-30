@@ -8,10 +8,29 @@ if (!isset($_SESSION['user'])) {
 include 'db.php'; // pour avoir accès à $pdo
 
 $email = $_SESSION['user'];
-$stmt = $pdo->prepare('SELECT nom_uti FROM utilisateurs_d WHERE email_uti = ?');
+$stmt = $pdo->prepare('SELECT nom_uti, prenom_uti, telephone, ville, image_profil, email_uti FROM utilisateurs_d WHERE email_uti = ?');
 $stmt->execute([$email]);
 $userData = $stmt->fetch();
-$nom = $userData ? $userData['nom_uti'] : '';
+$nom = $userData['nom_uti'] ?? '';
+$prenom = $userData['prenom_uti'] ?? '';
+$telephone = $userData['telephone'] ?? '';
+$ville = $userData['ville'] ?? '';
+$photo_profil = $userData['image_profil'] ?? ''; // Corrigé ici
+$email = $userData['email_uti'] ?? '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['nouvelle_photo']) && $_FILES['nouvelle_photo']['error'] === UPLOAD_ERR_OK) {
+    $tmp_name = $_FILES['nouvelle_photo']['tmp_name'];
+    $ext = pathinfo($_FILES['nouvelle_photo']['name'], PATHINFO_EXTENSION);
+    $filename = 'uploads/profils/' . uniqid('profil_') . '.' . $ext;
+    if (!is_dir('uploads/profils')) mkdir('uploads/profils', 0777, true);
+    move_uploaded_file($tmp_name, $filename);
+    // Mets à jour la BDD
+    $stmt = $pdo->prepare("UPDATE utilisateurs_d SET image_profil = ? WHERE email_uti = ?");
+    $stmt->execute([$filename, $email]);
+    // Recharge la page pour afficher la nouvelle photo
+    header("Location: moncompte.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -66,6 +85,25 @@ $nom = $userData ? $userData['nom_uti'] : '';
             gap: 1rem;
             justify-content: center;
         }
+        .compte-photo {
+            position: relative;
+            display: inline-block;
+            text-align: center;
+        }
+        .compte-photo img {
+            margin-bottom: 1rem;
+            background: #fff;
+        }
+        .photo-profil-img {
+            display: block;
+            margin: 0 auto;
+            border-radius: 50%;
+            object-fit: cover;
+            width: 120px;
+            height: 120px;
+            background: #fff;
+            border: 2px solid #F4ECD6;
+        }
     </style>
 </head>
 <body>
@@ -80,12 +118,12 @@ $nom = $userData ? $userData['nom_uti'] : '';
             <div class="collapse navbar-collapse order-lg-0 order-2" id="navbarNav">
                 <ul class="navbar-nav mr-auto">
                     <li class="nav-item"><a class="nav-link" href="produits.php" style="color: black;">Boutique</a></li>
-                    <li class="nav-item"><a class="nav-link" href="a-propos.html" style="color: black;">À propos</a></li>
-                    <li class="nav-item"><a class="nav-link" href="contact.html" style="color: black;">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="a-propos.php" style="color: black;">À propos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contact.php" style="color: black;">Contact</a></li>
                 </ul>
             </div>
             <div class="d-flex align-items-center gap-3 order-lg-2 order-1" style="width:auto;">
-                <a href="#" class="icon-link text-dark"><i class="bi bi-cart fs-5"></i></a>
+                <a href="./panier.php" class="icon-link text-dark"><i class="bi bi-cart fs-5"></i></a>
                 <a href="#" class="icon-link text-dark"><i class="bi bi-facebook fs-5"></i></a>
                 <a href="#" class="icon-link text-dark"><i class="bi bi-twitter fs-5"></i></a>
                 <?php include 'includes/bouton_compte.php'; ?>
@@ -95,10 +133,37 @@ $nom = $userData ? $userData['nom_uti'] : '';
 
     <div class="compte-container">
         <div class="compte-title"><i class="bi bi-person-circle"></i> Mon compte</div>
+        <div class="compte-photo mb-3 d-flex justify-content-center align-items-center" style="position: relative;">
+            <form method="post" enctype="multipart/form-data" id="form-photo-profil" style="display:inline-block;">
+                <input type="file" name="nouvelle_photo" id="nouvelle_photo" accept="image/*" style="display:none" onchange="document.getElementById('form-photo-profil').submit();">
+                <div style="position: relative; display: inline-block;">
+                    <img src="<?= $photo_profil ? htmlspecialchars($photo_profil) : 'images/default_avatar.png' ?>"
+                         alt="Photo de profil"
+                         class="rounded-circle photo-profil-img"
+                         style="width:120px;height:120px;object-fit:cover;border:2px solid #F4ECD6; background:#fff;">
+                    <span style="
+                        position: absolute;
+                        bottom: 8px;
+                        right: 8px;
+                        background: #fff;
+                        border-radius: 50%;
+                        border: 1.5px solid #F4ECD6;
+                        padding: 6px;
+                        cursor: pointer;
+                        box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+                        z-index:2;
+                    " onclick="document.getElementById('nouvelle_photo').click();">
+                        <i class="bi bi-pencil-fill" style="font-size: 1.1rem; color: #7a6a3a;"></i>
+                    </span>
+                </div>
+            </form>
+        </div>
         <div class="compte-info">
-            <strong>Nom :</strong> <?php echo htmlspecialchars($nom); ?><br>
-            <strong>Email :</strong> <?php echo htmlspecialchars($email); ?><br>
-            <!-- Ajoute ici d'autres infos utilisateur si besoin -->
+            <strong>Nom :</strong> <?= htmlspecialchars($nom) ?><br>
+            <strong>Prénom :</strong> <?= htmlspecialchars($prenom) ?><br>
+            <strong>Email :</strong> <?= htmlspecialchars($email) ?><br>
+            <strong>Téléphone :</strong> <?= htmlspecialchars($telephone) ?><br>
+            <strong>Ville :</strong> <?= htmlspecialchars($ville) ?><br>
         </div>
         <div class="compte-actions">
             <a href="modifier_profil.php" class="btn btn-outline-dark">Modifier le profil</a>

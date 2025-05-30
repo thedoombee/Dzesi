@@ -87,6 +87,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         body { background: #fff; }
         .commande-container { max-width: 600px; margin: 40px auto; }
         .recap-produit img { width: 60px; height: 60px; object-fit: cover; }
+
+        .form-container input:focus, 
+.form option:active, 
+.form textarea:focus,
+.form-select :focus 
+.form textarea:active {
+  border-color: #F4ECD6 !important;
+  box-shadow: 0 0 0 0.2rem rgba(244,236,214,0.5) !important;
+  outline: none !important;
+}
+.form-select option:checked {
+  background-color: #F4ECD6 !important;
+}
+.form-select option:checked {
+  background-color: #F4ECD6 !important;
+}
     </style>
 </head>
 <body>
@@ -100,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <?php endif; ?>
         <?php else: ?>
-        <form method="post">
+        <form method="post" class="form">
             <div class="mb-3">
                 <label for="adresse" class="form-label">Adresse de livraison</label>
                 <textarea name="adresse" id="adresse" class="form-control" required rows="2"></textarea>

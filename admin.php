@@ -121,7 +121,7 @@ $commandes = $pdo->query("
 ")->fetchAll();
 
 // Gestion du profil admin
-if (isset($_POST['edit_admin'])) {
+if (isset($_POST['edit_profil'])) {
     $new_nom = $_POST['nom'] ?? '';
     $new_prenom = $_POST['prenom'] ?? '';
     $new_email = $_POST['email'] ?? '';
@@ -177,6 +177,37 @@ $recus = $pdo->prepare("
 ");
 $recus->execute($params);
 $liste_recus = $recus->fetchAll();
+
+// Gestion de la recherche client
+$client_search = $_GET['client_search'] ?? '';
+$where_client = '';
+$params_client = [];
+if ($client_search) {
+    $where_client = "WHERE id_uti = ?";
+    $params_client[] = $client_search;
+}
+$clients = $pdo->prepare("SELECT * FROM utilisateurs_d $where_client ORDER BY id_uti DESC");
+$clients->execute($params_client);
+$liste_clients = $clients->fetchAll();
+
+// Récupération des informations du site
+$stmt = $pdo->query("SELECT * FROM informations_d LIMIT 1");
+$infos = $stmt->fetch();
+
+// Mise à jour des informations du site
+if (isset($_POST['edit_infos'])) {
+    $email_info = $_POST['email_info'] ?? '';
+    $numero_info = $_POST['numero_info'] ?? '';
+    $adresse_info = $_POST['adresse_info'] ?? '';
+    $id_info = $infos['id_info'] ?? 1;
+
+    $stmt = $pdo->prepare("UPDATE informations_d SET email=?, numero=?, adresse=? WHERE id_info=?");
+    $stmt->execute([$email_info, $numero_info, $adresse_info, $id_info]);
+    // Recharge les infos après modification
+    $stmt = $pdo->query("SELECT * FROM informations_d LIMIT 1");
+    $infos = $stmt->fetch();
+    $infos_message = "Informations mises à jour avec succès.";
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -230,6 +261,30 @@ $liste_recus = $recus->fetchAll();
     border-radius: 8px !important;
     box-shadow: 0 4px 24px rgba(0,0,0,0.15);
 }
+
+input:focus, select:focus, textarea:focus {
+    border-color: #F4ECD6 !important;
+    box-shadow: 0 0 0 0.2rem rgba(244,236,214,0.25) !important;
+    outline: none !important;
+}
+.form-container input:focus, 
+.form-container input:active, 
+.form-container textarea:focus, 
+.form-container textarea:active {
+  border-color: #F4ECD6 !important;
+  box-shadow: 0 0 0 0.2rem rgba(244,236,214,0.5) !important;
+  outline: none !important;
+}
+
+.info input{
+    border-radius: 0;
+}
+.profil input{
+    border-radius: 0;
+}
+.ajprd input{
+    border-radius: 0;
+}
     </style>
 </head>
 <body>
@@ -243,7 +298,7 @@ $liste_recus = $recus->fetchAll();
     </nav>
 
     <div class="admin-container">
-        <ul class="nav nav-tabs mb-4"  id="adminTabs" role="tablist">
+        <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" style="color: #000; border-radius: 0;" id="produits-tab" data-bs-toggle="tab" data-bs-target="#produits" type="button" role="tab">Produits</button>
             </li>
@@ -262,8 +317,14 @@ $liste_recus = $recus->fetchAll();
             <li class="nav-item" role="presentation">
     <button class="nav-link" style="color: #000; border-radius: 0;" id="recus-tab" data-bs-toggle="tab" data-bs-target="#recus" type="button" role="tab">Reçus</button>
 </li>
-        </ul>
-        <div class="tab-content" id="adminTabsContent">
+<li class="nav-item" role="presentation">
+    <button class="nav-link" style="color: #000; border-radius: 0;" id="clients-tab" data-bs-toggle="tab" data-bs-target="#clients" type="button" role="tab">Clients</button>
+</li>
+<li class="nav-item" role="presentation">
+    <button class="nav-link" style="color: #000; border-radius: 0;" id="infos-tab" data-bs-toggle="tab" data-bs-target="#infos" type="button" role="tab">Informations</button>
+
+</ul>
+            <div class="tab-content" id="adminTabsContent">
             <!-- Produits -->
             <div class="tab-pane fade show active" id="produits" role="tabpanel">
                 <h4>Liste des produits</h4>
@@ -283,7 +344,7 @@ $liste_recus = $recus->fetchAll();
                         <?php foreach ($produits as $prod): ?>
                         <tr>
                             <td><?= htmlspecialchars($prod['nom_prod'] ?? '') ?></td>
-                            <td><?= htmlspecialchars($prod['prix'] ?? '') ?> €</td>
+                            <td><?= htmlspecialchars($prod['prix'] ?? '') ?> FCFA</td>
                             <td><?= htmlspecialchars($prod['categorie'] ?? '') ?></td>
                             <td><?= htmlspecialchars($prod['desc_prod'] ?? '') ?></td>
                             <td><?= htmlspecialchars($prod['quantite_stock'] ?? '') ?></td>
@@ -363,7 +424,7 @@ $liste_recus = $recus->fetchAll();
                     </tbody>
                 </table>
                 <h5 class="mt-4">Ajouter un produit</h5>
-                <form method="post" class="row g-3" enctype="multipart/form-data">
+                <form method="post" class="row g-3 ajprd" enctype="multipart/form-data">
                     <div class="col-md-3">
                         <input type="text" name="nom" class="form-control" placeholder="Nom" required>
                     </div>
@@ -469,7 +530,7 @@ $liste_recus = $recus->fetchAll();
                             <td><?= $cmd['id_uti'] ?></td>
                             <td><?= htmlspecialchars($cmd['nom_prod']) ?></td>
                             <td><?= $cmd['date_com'] ?></td>
-                            <td><?= number_format($cmd['total'], 2, ',', ' ') ?> €</td>
+                            <td><?= number_format($cmd['total'], 2, ',', ' ') ?> FCFA</td>
                             <td><?= htmlspecialchars($cmd['adresse_livraison']) ?></td>
                             <td><?= htmlspecialchars($cmd['mode_paiement']) ?></td>
                             <td>
@@ -490,7 +551,7 @@ $liste_recus = $recus->fetchAll();
                 <h4>Statistiques</h4>
                 <div class="mb-3">
                     <strong>Chiffre d'affaires général :</strong>
-                    <span><?= number_format($chiffreAffaire, 2, ',', ' ') ?> €</span>
+                    <span><?= number_format($chiffreAffaire, 2, ',', ' ') ?> FCFA</span>
                 </div>
                 <h5>Produits achetés</h5>
                 <table class="table table-bordered table-hover">
@@ -513,7 +574,7 @@ $liste_recus = $recus->fetchAll();
             <!-- Profil -->
             <div class="tab-pane fade" id="profil" role="tabpanel">
                 <h4>Mon profil</h4>
-                <form method="post" class="row g-3">
+                <form method="post" class="row g-3 profil">
                     <div class="col-md-6">
                         <label>Nom</label>
                         <input type="text" name="nom" class="form-control" value="<?= htmlspecialchars($admin['nom']) ?>" required>
@@ -567,7 +628,7 @@ $liste_recus = $recus->fetchAll();
                             <td><?= $recu['id_com'] ?? '' ?></td>
                             <td><?= $recu['date_com'] ?? '' ?></td>
                             <td><?= $recu['id_uti'] ?? '' ?></td>
-                            <td><?= number_format($recu['total'] ?? 0, 2, ',', ' ') ?> €</td>
+                            <td><?= number_format($recu['total'] ?? 0, 2, ',', ' ') ?> FCFA</td>
                             <td>
                                 <a href="recu.php?num_recu=<?= urlencode($recu['num_recu'] ?? '') ?>&id_com=<?= urlencode($recu['id_com'] ?? '') ?>" class="btn btn-outline-dark btn-sm" target="_blank">
     Voir / Télécharger
@@ -586,6 +647,66 @@ $liste_recus = $recus->fetchAll();
                 <div class="alert alert-info">Aucun reçu trouvé pour cette recherche.</div>
                 <?php endif; ?>
             </div>
+            <!-- Clients -->
+            <div class="tab-pane fade" id="clients" role="tabpanel">
+                <h4>Liste des clients</h4>
+                <form method="get" class="row g-3 mb-4">
+                    <div class="col-md-8">
+                        <input type="text" name="client_search" class="form-control" placeholder="ID client" value="<?= htmlspecialchars($client_search) ?>">
+                    </div>
+                    <div class="col-md-4">
+                        <button type="submit" class="btn btn-outline-dark w-100">Rechercher</button>
+                    </div>
+                </form>
+                <?php if ($liste_clients): ?>
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Prénom</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($liste_clients as $cli): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($cli['id_uti']) ?></td>
+                            <td><?= htmlspecialchars($cli['nom_uti']) ?></td>
+                            <td><?= htmlspecialchars($cli['prenom_uti']) ?></td>
+                            <td><?= htmlspecialchars($cli['email_uti'] ??'') ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <?php else: ?>
+                <div class="alert alert-info">Aucun client trouvé.</div>
+                <?php endif; ?>
+            </div>
+            <!-- Informations -->
+            <div class="tab-pane fade" id="infos" role="tabpanel">
+    <h4>Informations du site</h4>
+    <?php if (!empty($infos_message)) : ?>
+        <div class="alert alert-success"><?= $infos_message ?></div>
+    <?php endif; ?>
+    <form method="post" class="row g-3 info">
+        <div class="col-md-6">
+            <label>Email</label>
+            <input type="email" name="email_info" class="form-control" value="<?= htmlspecialchars($infos['email'] ?? '') ?>" required>
+        </div>
+        <div class="col-md-6">
+            <label>Numéro</label>
+            <input type="text" name="numero_info" class="form-control" value="<?= htmlspecialchars($infos['numero'] ?? '') ?>" required>
+        </div>
+        <div class="col-md-12">
+            <label>Adresse</label>
+            <input type="text" name="adresse_info" class="form-control" value="<?= htmlspecialchars($infos['adresse'] ?? '') ?>" required>
+        </div>
+        <div class="col-md-12">
+            <button type="submit" name="edit_infos" class="btn btn-outline-dark">Enregistrer les modifications</button>
+        </div>
+    </form>
+</div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>

@@ -212,7 +212,11 @@ if ($cat_id) {
         <nav class="navbar navbar-expand-lg  " style="background-color: white; box-shadow: 0 2px ;">
             <div class="container-fluid">
                 <!-- Nom du site -->
-                <a class="navbar-brand mx-auto order-lg-1 order-0" href="#" style="color: black;">Dzesi</a>
+                <a class="navbar-brand mx-auto order-lg-1 order-0" href="./index.php" ><div class="col-md-4 mb-1 d-flex align-items-center justify-content-center">
+  <div style="font-family: 'Segoe Script', 'Brush Script MT', cursive; font-size: 2.7rem; font-weight: bold; letter-spacing: 2px; color: #7a6a3a; text-shadow: 1px 1px 8px #f4ecd6;">
+    Dzesi
+  </div>
+</div></a>
     
                 <!-- Bouton du menu hamburger -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -228,17 +232,17 @@ if ($cat_id) {
                             <a id="boutique-link" class="nav-link" href="produits.php" style="color: black;">Boutique</a>
                         </li>
                         <li class="nav-item">
-                            <a id="a-propos-link" class="nav-link" href="a-propos.html" style="color: black;">À propos</a>
+                            <a id="a-propos-link" class="nav-link" href="a-propos.php" style="color: black;">À propos</a>
                         </li>
                         <li class="nav-item">
-                            <a id="contact-link" class="nav-link" href="contact.html" style="color: black;">Contact</a>
+                            <a id="contact-link" class="nav-link" href="contact.php" style="color: black;">Contact</a>
                         </li>
                     </ul>
                 </div>
     
                 <!-- Panier et réseaux sociaux + bouton -->
                 <div class="d-flex align-items-center gap-3 navbar-actions order-lg-2 order-1">
-                    <a href="#" class="nav-link p-0" style="color: black;"><i class="bi bi-cart fs-5"></i></a>
+                    <a href="./panier.php" class="nav-link p-0" style="color: black;"><i class="bi bi-cart fs-5"></i></a>
                     <a href="#" class="nav-link p-0" style="color: black;"><i class="bi bi-facebook fs-5"></i></a>
                     <a href="#" class="nav-link p-0" style="color: black;"><i class="bi bi-twitter fs-5"></i></a>
                     <?php include 'includes/bouton_compte.php'; ?>
@@ -303,18 +307,16 @@ if ($cat_id) {
 
 
 <footer class=" text-dark pt-5 pb-3 mt-5 border-top">
-    <div class="container">
+    <div class="container-fluid">
       <div class="row">
   
         <!-- FAQ -->
-        <div class="col-md-4 mb-4">
-          <h5 class="mb-3">FAQ</h5>
-          <ul class="list-unstyled">
-            <li><a href="#" class="text-decoration-none text-muted">Comment soumettre une recette ?</a></li>
-            <li><a href="#" class="text-decoration-none text-muted">Comment fonctionne le blog ?</a></li>
-            <li><a href="#" class="text-decoration-none text-muted">Puis-je partager sur les réseaux ?</a></li>
-          </ul>
-        </div>
+       <!-- Remplace la section FAQ par ceci -->
+<div class="col-md-4 mb-4 d-flex align-items-center justify-content-center">
+  <div style="font-family: 'Segoe Script', 'Brush Script MT', cursive; font-size: 2.7rem; font-weight: bold; letter-spacing: 2px; color: #7a6a3a; text-shadow: 1px 1px 8px #f4ecd6;">
+    Dzesi
+  </div>
+</div>
   
         <!-- Contacts -->
         <div class="col-md-4 mb-4">
