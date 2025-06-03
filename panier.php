@@ -2,6 +2,12 @@
 session_start();
 require_once 'db.php';
 
+// Redirection si l'utilisateur n'est pas connecté
+if (!isset($_SESSION['id_uti'])) {
+    header('Location: inscription.php');
+    exit;
+}
+
 // Ajouter au panier
 if (isset($_POST['ajouter_panier'])) {
     $id_prod = intval($_POST['id_prod']);
@@ -378,12 +384,12 @@ body {
                     <div class="col-3 text-center">
                         <form method="post" action="panier.php" class="d-inline">
                             <input type="hidden" name="id_prod" value="<?= $prod['id_prod'] ?>">
-                            <button type="submit" name="moins" class="qty-btn btn btn-link p-0">-</button>
+                            <button type="submit" name="moins" class="qty-btn btn btn-link p-0" style="text-decoration: none; color: black;">-</button>
                         </form>
                         <?= $prod['quantite'] ?>
                         <form method="post" action="panier.php" class="d-inline">
                             <input type="hidden" name="id_prod" value="<?= $prod['id_prod'] ?>">
-                            <button type="submit" name="plus" class="qty-btn btn btn-link p-0">+</button>
+                            <button type="submit" name="plus" class="qty-btn btn btn-link p-0"style="text-decoration: none;color: black;">+</button>
                         </form>
                     </div>
                     <div class="col-2 fw-bold"><?= number_format($prod['sous_total'], 2, ',', ' ') ?> FCFA</div>
