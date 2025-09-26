@@ -1,4 +1,9 @@
 <?php
+$port = getenv('PORT') ?: 8080;
+
+// Headers pour éviter les problèmes CORS
+header('Content-Type: text/html; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
 include 'db.php';
 session_start();
 
