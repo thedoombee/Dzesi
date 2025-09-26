@@ -1,7 +1,6 @@
 {
+    "name": "thedoombee/dzesi",
     "require": {
-        "phpmailer/phpmailer": "^6.10",
-        "php": "^8.0"
+        "php": ">=7.4"
     }
-    
 }
